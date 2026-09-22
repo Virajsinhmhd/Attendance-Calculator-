@@ -31,19 +31,18 @@
             --input-border: rgba(150, 190, 255, 0.24);
         }
 
-        /* Dim (dark) mode — deeper blue + slightly stronger panels */
         body.dark {
-            --card: rgba(8, 20, 60, 0.42);
-            --card-2: rgba(10, 24, 70, 0.55);
-            --card-hover: rgba(15, 32, 90, 0.62);
+            --card: rgba(8, 20, 60, 0.55);
+            --card-2: rgba(10, 24, 70, 0.68);
+            --card-hover: rgba(15, 32, 90, 0.72);
 
             --text: #eef4ff;
             --muted: rgba(180, 205, 245, 0.72);
-            --border: rgba(120, 170, 255, 0.20);
-            --border-strong: rgba(120, 170, 255, 0.34);
+            --border: rgba(120, 170, 255, 0.22);
+            --border-strong: rgba(120, 170, 255, 0.36);
 
-            --input-bg: rgba(8, 22, 65, 0.45);
-            --input-border: rgba(120, 170, 255, 0.28);
+            --input-bg: rgba(8, 22, 65, 0.55);
+            --input-border: rgba(120, 170, 255, 0.30);
         }
 
         /* =========================
@@ -62,33 +61,46 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: #0a2a8a;
             color: var(--text);
             transition: color 0.4s;
             overflow-x: hidden;
             position: relative;
+            background: #0a2a8a;
         }
 
-        body.no-scroll {
-            overflow: hidden;
-            height: 100vh;
+        /* Buttons & inputs: no double-tap zoom */
+        button, input, .mini-btn, .theme-btn, .calculate-btn {
+            touch-action: manipulation;
+        }
+
+        /* Disable hover-only transforms on touch devices */
+        @media (hover: none) {
+            .dashboard-card:hover,
+            .mini-btn:hover,
+            .theme-btn:hover,
+            .calculate-btn:hover {
+                transform: none !important;
+            }
         }
 
         /* =========================================================
-           ANIMATED BACKGROUND SCENE
+           ANIMATED BACKGROUND SCENE  (z-index 0)
         ========================================================= */
         .bg-scene {
             position: fixed;
-            inset: 0;
-            z-index: -2;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
             overflow: hidden;
+            contain: strict;
             background:
                 radial-gradient(1200px 900px at 15% 10%, #1e54d8 0%, transparent 55%),
                 radial-gradient(1000px 800px at 90% 90%, #1a3aa0 0%, transparent 55%),
                 linear-gradient(160deg, #0a2a8a 0%, #1044c8 42%, #0d35a8 72%, #061a5e 100%);
         }
 
-        /* subtle brightness shift while the page is open */
         .bg-scene::after {
             content: "";
             position: absolute;
@@ -101,16 +113,18 @@
         }
 
         @keyframes hueShift {
-            0%   { opacity: 0.55; transform: scale(1) translate(0, 0); }
-            100% { opacity: 1;    transform: scale(1.08) translate(-2%, 2%); }
+            0%   { opacity: 0.55; transform: scale(1); }
+            100% { opacity: 1;    transform: scale(1.06); }
         }
 
         .bg-svg {
             position: absolute;
-            inset: -15%;
+            top: -15%;
+            left: -15%;
             width: 130%;
             height: 130%;
             animation: sceneDrift 40s ease-in-out infinite alternate;
+            will-change: transform;
         }
 
         @keyframes sceneDrift {
@@ -119,26 +133,11 @@
             100% { transform: translate3d(1.5%, -1.5%, 0) rotate(-1.6deg) scale(1.04); }
         }
 
-        /* Individual shape drifts — small, slow, continuous */
-        .s-ribbon1 {
-            transform-origin: 50% 40%;
-            animation: shapeDriftA 26s ease-in-out infinite alternate;
-        }
-        .s-ribbon2 {
-            transform-origin: 55% 45%;
-            animation: shapeDriftB 32s ease-in-out infinite alternate;
-        }
-        .s-wedge {
-            transform-origin: 60% 50%;
-            animation: shapeDriftC 38s ease-in-out infinite alternate;
-        }
-        .s-glow {
-            transform-origin: 30% 35%;
-            animation: shapeDriftD 22s ease-in-out infinite alternate;
-        }
-        .s-line {
-            animation: shapeDriftB 30s ease-in-out infinite alternate-reverse;
-        }
+        .s-ribbon1 { transform-origin: 50% 40%; animation: shapeDriftA 26s ease-in-out infinite alternate; }
+        .s-ribbon2 { transform-origin: 55% 45%; animation: shapeDriftB 32s ease-in-out infinite alternate; }
+        .s-wedge   { transform-origin: 60% 50%; animation: shapeDriftC 38s ease-in-out infinite alternate; }
+        .s-glow    { transform-origin: 30% 35%; animation: shapeDriftD 22s ease-in-out infinite alternate; }
+        .s-line    { animation: shapeDriftB 30s ease-in-out infinite alternate-reverse; }
 
         @keyframes shapeDriftA {
             0%   { transform: translate(0, 0) rotate(0deg); }
@@ -157,25 +156,32 @@
             100% { transform: scale(1.15); opacity: 0.95; }
         }
 
-        /* Dim overlay for focus / dark mode */
+        /* Dim overlay (z-index 1) */
         .bg-overlay {
             position: fixed;
-            inset: 0;
-            z-index: -1;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
             background: rgba(2, 8, 32, 0);
             transition: background 0.5s;
             pointer-events: none;
         }
+
         body.dark .bg-overlay {
             background: rgba(2, 8, 32, 0.55);
         }
 
         /* =========================================================
-           SPLASH SCREEN  (blue theme)
+           SPLASH SCREEN  (z-index very high)
         ========================================================= */
         .splash {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             z-index: 99999;
             display: flex;
             flex-direction: column;
@@ -185,11 +191,19 @@
             background:
                 radial-gradient(circle at center, #1a44c4 0%, #0c1f6b 55%, #030a26 100%);
             overflow: hidden;
-            animation: splashOut 0.9s ease 2.5s forwards;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.9s ease, visibility 0.9s ease;
+            will-change: opacity;
         }
 
-        @keyframes splashOut {
-            to { opacity: 0; visibility: hidden; }
+        .splash.is-hiding {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash.is-gone {
+            display: none;
         }
 
         .splash-inner {
@@ -199,7 +213,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: translateZ(0);
         }
 
         .splash-glow {
@@ -241,7 +254,7 @@
 
         .splash-sparkles {
             position: absolute;
-            inset: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             animation: sparkleSpin 9s linear infinite;
         }
 
@@ -279,22 +292,12 @@
                 0 0 60px rgba(79, 140, 255, 0.45),
                 0 12px 30px rgba(0, 0, 0, 0.35);
             z-index: 5;
-            animation:
-                logoIn 0.75s cubic-bezier(.2, .9, .3, 1.3) 0.05s both,
-                logoOut 0.9s cubic-bezier(.55, 0, .8, .45) 2.3s forwards;
+            animation: logoIn 0.75s cubic-bezier(.2, .9, .3, 1.3) 0.05s both;
         }
 
         @keyframes logoIn {
             from { transform: scale(0.2) rotate(-12deg); opacity: 0; }
             to   { transform: scale(1) rotate(0deg);     opacity: 1; }
-        }
-
-        @keyframes logoOut {
-            to {
-                transform: scale(3.6);
-                opacity: 0;
-                filter: blur(8px);
-            }
         }
 
         .splash-logo-fallback {
@@ -319,14 +322,6 @@
             z-index: 6;
             text-align: center;
             color: #fff;
-            animation: captionAnim 3.0s ease 0.35s both;
-        }
-
-        @keyframes captionAnim {
-            0%   { opacity: 0; transform: translateY(10px); letter-spacing: 6px; }
-            18%  { opacity: 1; transform: translateY(0);    letter-spacing: 3px; }
-            78%  { opacity: 1; transform: translateY(0);    letter-spacing: 3px; }
-            100% { opacity: 0; transform: translateY(-8px); letter-spacing: 6px; }
         }
 
         .splash-title {
@@ -351,10 +346,11 @@
         }
 
         /* =========================
-           HEADER (glassy)
+           HEADER  (z-index 2)
         ========================= */
         .header {
             position: relative;
+            z-index: 2;
             overflow: hidden;
             background: linear-gradient(135deg,
                     rgba(20, 45, 130, 0.55),
@@ -452,24 +448,24 @@
             border: none;
             background: rgba(255, 255, 255, 0.14);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: white;
             padding: 11px 16px;
             border-radius: 30px;
             cursor: pointer;
             font-size: 13px;
             font-weight: bold;
-            transition: 0.3s;
+            transition: background 0.3s;
             border: 1px solid rgba(255, 255, 255, 0.28);
             white-space: nowrap;
         }
 
         .theme-btn:hover {
             background: rgba(255, 255, 255, 0.26);
-            transform: translateY(-2px);
         }
 
         /* =========================
-           MAIN CONTAINER
+           MAIN CONTAINER  (z-index 2)
         ========================= */
         .container {
             width: 100%;
@@ -477,7 +473,7 @@
             margin: auto;
             padding: 30px 16px;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         .welcome-section {
@@ -522,14 +518,7 @@
             border-radius: 18px;
             padding: 18px;
             box-shadow: 0 12px 32px rgba(0, 10, 40, 0.28);
-            transition: 0.3s;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-6px);
-            background: var(--card-hover);
-            box-shadow: 0 20px 40px rgba(0, 10, 40, 0.40);
-            border-color: var(--border-strong);
+            transition: background 0.3s, box-shadow 0.3s;
         }
 
         .dashboard-card::before {
@@ -544,10 +533,10 @@
             filter: blur(2px);
         }
 
-        .card-red::before { background: var(--primary); }
-        .card-blue::before { background: var(--blue); }
+        .card-red::before    { background: var(--primary); }
+        .card-blue::before   { background: var(--blue); }
         .card-purple::before { background: var(--purple); }
-        .card-green::before { background: var(--green); }
+        .card-green::before  { background: var(--green); }
         .card-orange::before { background: var(--orange); }
 
         .card-icon {
@@ -569,7 +558,7 @@
         }
 
         /* =========================
-           PANELS  (glassy)
+           PANELS
         ========================= */
         .panel {
             background: var(--card);
@@ -673,9 +662,7 @@
             color: #fff;
             width: 100%;
             outline: none;
-            transition: 0.2s;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            transition: border-color 0.2s, background 0.2s;
         }
 
         .subject-table input::placeholder {
@@ -697,7 +684,7 @@
             padding-left: 10px;
         }
 
-        /* Remove default spinner in number inputs (nicer on mobile) */
+        /* Hide number spinners */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -750,7 +737,6 @@
             transition: width 0.5s ease, background 0.3s;
         }
 
-        /* action cell */
         .s-action {
             font-size: 13px;
             font-weight: 600;
@@ -776,17 +762,15 @@
             cursor: pointer;
             font-size: 13px;
             font-weight: bold;
-            transition: 0.2s;
+            transition: background 0.2s;
             line-height: 1;
             flex-shrink: 0;
         }
 
         .row-del:hover {
             background: rgba(255, 120, 120, 0.35);
-            transform: scale(1.08);
         }
 
-        /* table buttons */
         .table-actions {
             display: flex;
             flex-wrap: wrap;
@@ -803,13 +787,12 @@
             font-size: 13.5px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.25s;
+            transition: background 0.25s, border-color 0.25s, color 0.25s;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
 
         .mini-btn:hover {
-            transform: translateY(-2px);
             background: rgba(79, 140, 255, 0.22);
             border-color: #4f8cff;
             color: #fff;
@@ -865,7 +848,7 @@
             color: #fff;
             font-size: 15.5px;
             outline: none;
-            transition: 0.3s;
+            transition: border-color 0.3s, background 0.3s;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
@@ -895,7 +878,7 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 12px 30px rgba(79, 140, 255, 0.40);
         }
 
@@ -999,9 +982,6 @@
             -webkit-backdrop-filter: blur(8px);
         }
 
-        /* =========================
-           SIMULATOR
-        ========================= */
         .sim-box {
             margin-top: 18px;
             padding: 16px;
@@ -1060,14 +1040,75 @@
             font-size: 13px;
             line-height: 1.8;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         /* =========================================================
-           RESPONSIVE
+           TABLET  (max-width: 900px)
+           - kill expensive backdrop-filter
+           - freeze background animation
+           - make panels more opaque
         ========================================================= */
-
         @media (max-width: 900px) {
+
+            /* ---------- PERFORMANCE: disable blur filters ---------- */
+            .header,
+            .dashboard-card,
+            .panel,
+            .mini-btn,
+            .theme-btn,
+            .subject-table input,
+            .input-wrapper input,
+            .percentage-box,
+            .status,
+            .info-box,
+            .sim-box {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            /* ---------- PERFORMANCE: freeze background ---------- */
+            .bg-svg,
+            .bg-scene::after,
+            .s-ribbon1,
+            .s-ribbon2,
+            .s-wedge,
+            .s-glow,
+            .s-line,
+            .splash-glow,
+            .splash-ring,
+            .splash-sparkles,
+            .sparkle {
+                animation: none !important;
+            }
+
+            /* ---------- More opaque panels for readability ---------- */
+            .header {
+                background: linear-gradient(135deg, #1a3aa0, #2a5cc8, #0a2266);
+            }
+
+            .dashboard-card {
+                background: rgba(15, 35, 105, 0.72);
+            }
+
+            .panel {
+                background: rgba(12, 30, 95, 0.72);
+            }
+
+            .table-wrap {
+                background: rgba(8, 22, 70, 0.55);
+            }
+
+            .subject-table input,
+            .input-wrapper input {
+                background: rgba(8, 22, 70, 0.55);
+            }
+
+            .mini-btn {
+                background: rgba(20, 45, 130, 0.6);
+            }
+
+            /* Layout grids */
             .dashboard-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -1077,6 +1118,9 @@
             }
         }
 
+        /* =========================================================
+           MOBILE  (max-width: 760px)
+        ========================================================= */
         @media (max-width: 760px) {
 
             .header {
@@ -1123,7 +1167,7 @@
 
             .percentage { font-size: 40px; }
 
-            /* ---------- TABLE → CARDS ---------- */
+            /* ---------- TABLE → STACKED CARDS ---------- */
             .table-wrap {
                 overflow-x: visible;
                 border: none;
@@ -1148,28 +1192,57 @@
                 width: 100%;
             }
 
-            .subject-table tbody tr {
+            /* ---- Empty state: no card wrapper, plain text ---- */
+            .subject-table tbody tr.empty-row {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin-bottom: 12px !important;
+            }
+
+            .subject-table tbody tr.empty-row td {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            .subject-table tbody tr.empty-row td::before {
+                content: none !important;
+            }
+
+            .empty-cell {
+                display: block !important;
+                border: 1px dashed var(--border-strong);
+                border-radius: 16px;
+                padding: 28px 16px !important;
+                background: rgba(15, 35, 105, 0.55);
+                text-align: center;
+                width: 100% !important;
+            }
+
+            /* ---- Normal subject rows become cards ---- */
+            .subject-table tbody tr:not(.empty-row) {
                 position: relative;
                 border: 1px solid var(--border-strong);
                 border-radius: 16px;
                 padding: 14px;
                 margin-bottom: 12px;
                 background: var(--card-2);
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
                 box-shadow: 0 8px 24px rgba(0, 10, 40, 0.25);
             }
 
-            .subject-table tbody td {
+            .subject-table tbody tr:not(.empty-row) td {
                 border: none;
-                padding: 5px 0;
+                padding: 6px 0;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 10px;
             }
 
-            .subject-table tbody td::before {
+            .subject-table tbody tr:not(.empty-row) td::before {
                 content: attr(data-label);
                 font-size: 11.5px;
                 color: var(--muted);
@@ -1179,7 +1252,8 @@
                 flex-shrink: 0;
             }
 
-            .subject-table tbody td[data-label="Subject"] {
+            /* Subject cell (full width, stacked) */
+            .subject-table tbody tr:not(.empty-row) td[data-label="Subject"] {
                 flex-direction: column;
                 align-items: stretch;
                 padding-right: 42px;
@@ -1188,7 +1262,7 @@
                 margin-bottom: 8px;
             }
 
-            .subject-table tbody td[data-label="Subject"]::before {
+            .subject-table tbody tr:not(.empty-row) td[data-label="Subject"]::before {
                 margin-bottom: 6px;
             }
 
@@ -1199,7 +1273,8 @@
                 width: 110px;
             }
 
-            .subject-table tbody td:last-child {
+            /* Delete button floats top-right */
+            .subject-table tbody tr:not(.empty-row) td:last-child {
                 position: absolute;
                 top: 10px;
                 right: 10px;
@@ -1208,21 +1283,21 @@
                 display: block;
             }
 
-            .subject-table tbody td:last-child::before { content: none; }
-
-            .subject-table tbody td[data-label="Attendance"] {
-                justify-content: space-between;
+            .subject-table tbody tr:not(.empty-row) td:last-child::before {
+                content: none;
             }
 
-            .subject-table tbody td[data-label="Attendance"] .pct-wrap {
+            /* Attendance cell */
+            .subject-table tbody tr:not(.empty-row) td[data-label="Attendance"] .pct-wrap {
                 gap: 12px;
             }
 
-            .subject-table tbody td[data-label="Attendance"] .pct-track {
+            .subject-table tbody tr:not(.empty-row) td[data-label="Attendance"] .pct-track {
                 width: 100px;
             }
 
-            .subject-table tbody td[data-label="Action"] {
+            /* Action cell stacks under a dashed divider */
+            .subject-table tbody tr:not(.empty-row) td[data-label="Action"] {
                 flex-direction: column;
                 align-items: flex-start;
                 padding-top: 8px;
@@ -1230,27 +1305,17 @@
                 margin-top: 6px;
             }
 
-            .subject-table tbody td[data-label="Action"] .s-action {
+            .subject-table tbody tr:not(.empty-row) td[data-label="Action"] .s-action {
                 margin-top: 4px;
                 white-space: normal;
             }
 
-            .empty-cell {
-                border: 1px dashed var(--border-strong);
-                border-radius: 16px;
-                padding: 28px 16px !important;
-                background: var(--card-2);
-                backdrop-filter: blur(14px);
-                -webkit-backdrop-filter: blur(14px);
-            }
-
+            /* ---- tfoot summary card ---- */
             .subject-table tfoot tr {
                 border: 1px solid var(--border-strong);
                 border-radius: 16px;
                 padding: 14px;
-                background: rgba(79, 140, 255, 0.14);
-                backdrop-filter: blur(16px);
-                -webkit-backdrop-filter: blur(16px);
+                background: rgba(79, 140, 255, 0.18);
                 box-shadow: 0 8px 24px rgba(0, 10, 40, 0.25);
             }
 
@@ -1264,7 +1329,25 @@
                 background: transparent;
             }
 
-            .subject-table tfoot td::before {
+            /* First tfoot cell = header row (no pseudo label) */
+            .subject-table tfoot td:first-child {
+                display: block !important;
+                text-align: center;
+                font-size: 12px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: #bcd6ff;
+                padding: 0 0 12px !important;
+                border-bottom: 1px dashed var(--border) !important;
+                margin-bottom: 10px;
+            }
+
+            .subject-table tfoot td:first-child::before {
+                content: none !important;
+            }
+
+            .subject-table tfoot td:not(:first-child)::before {
                 content: attr(data-label);
                 font-size: 11.5px;
                 color: var(--muted);
@@ -1294,16 +1377,24 @@
                 white-space: normal;
             }
 
-            .subject-table tfoot td:empty { display: none; }
+            /* Hide empty tfoot cell (was the delete-column slot) */
+            .subject-table tfoot td:empty {
+                display: none !important;
+            }
 
+            /* Buttons */
             .table-actions { gap: 8px; }
             .mini-btn { flex: 1 1 auto; padding: 11px 12px; font-size: 13px; }
 
+            /* Result tweaks */
             .percentage-box { padding: 20px 14px; }
             .status { font-size: 14px; padding: 16px; }
             .info-box { font-size: 13px; }
         }
 
+        /* =========================================================
+           SMALL PHONE  (max-width: 420px)
+        ========================================================= */
         @media (max-width: 420px) {
             .dashboard-grid {
                 gap: 12px;
@@ -1327,24 +1418,16 @@
             .splash-sub   { font-size: 10.5px; letter-spacing: 3px; }
         }
 
+        /* =========================================================
+           REDUCED MOTION
+        ========================================================= */
         @media (prefers-reduced-motion: reduce) {
-            .splash-glow,
-            .splash-ring,
-            .splash-sparkles,
-            .sparkle,
-            .splash-logo,
-            .splash-caption,
-            .bg-svg,
-            .bg-scene::after,
-            .s-ribbon1,
-            .s-ribbon2,
-            .s-wedge,
-            .s-glow,
-            .s-line {
+            * {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
-            .splash { animation: splashOut 0.4s ease 1.2s forwards; }
+            .splash { transition: opacity 0.3s ease, visibility 0.3s ease; }
         }
     </style>
 </head>
@@ -1391,22 +1474,18 @@
                 </radialGradient>
             </defs>
 
-            <!-- Soft ambient glows -->
             <ellipse class="s-glow" cx="280" cy="330" rx="420" ry="520" fill="url(#glow1)"/>
             <ellipse class="s-glow" cx="780" cy="720" rx="420" ry="480" fill="url(#glow2)" style="animation-delay:-8s;"/>
 
-            <!-- Large wedge (right side, into the corner) -->
             <path class="s-wedge"
                   d="M 640,-120 C 520,180 400,500 330,780 C 300,930 340,1050 440,1120 L 1120,1120 L 1120,-120 Z"
                   fill="url(#wedge1)"/>
 
-            <!-- Second subtle wedge (left, faint) -->
             <path class="s-wedge"
                   d="M -120,-120 C 60,150 180,420 200,720 C 210,880 150,1020 40,1120 L -120,1120 Z"
                   fill="url(#wedge2)"
                   style="animation-delay:-12s;opacity:0.7;"/>
 
-            <!-- Main flowing ribbon (S-curve like the reference) -->
             <path class="s-ribbon1"
                   d="M 520,-120 C 400,180 180,420 160,640 C 140,850 320,960 460,1120"
                   fill="none"
@@ -1414,7 +1493,6 @@
                   stroke-width="58"
                   stroke-linecap="round"/>
 
-            <!-- Highlight along the ribbon -->
             <path class="s-ribbon1"
                   d="M 520,-120 C 400,180 180,420 160,640 C 140,850 320,960 460,1120"
                   fill="none"
@@ -1424,7 +1502,6 @@
                   stroke-linecap="round"
                   style="animation-delay:-6s;"/>
 
-            <!-- Secondary ribbon -->
             <path class="s-ribbon2"
                   d="M 660,-120 C 580,150 440,360 420,540 C 400,720 520,880 660,1120"
                   fill="none"
@@ -1432,7 +1509,6 @@
                   stroke-width="26"
                   stroke-linecap="round"/>
 
-            <!-- Thin accent lines -->
             <path class="s-line"
                   d="M 780,-120 C 720,200 640,460 720,700 C 780,880 900,980 1020,1120"
                   fill="none"
@@ -1577,7 +1653,7 @@
                     <tbody id="subjectBody"></tbody>
                     <tfoot>
                         <tr>
-                            <td data-label="Overall">Overall Total</td>
+                            <td>Overall Total</td>
                             <td data-label="Total Classes" id="sumTotal">0</td>
                             <td data-label="Present" id="sumPresent">0</td>
                             <td data-label="Attendance">
@@ -1994,7 +2070,7 @@
             subjects.push({ name: '', total: '', present: '' });
             buildTable();
 
-            const rows = document.querySelectorAll('#subjectBody tr');
+            const rows = document.querySelectorAll('#subjectBody tr:not(.empty-row)');
             const lastRow = rows[rows.length - 1];
 
             if (lastRow) {
@@ -2173,14 +2249,17 @@
 
 
         /* =========================================================
-           SPLASH SCREEN
+           SPLASH SCREEN — controlled entirely by JS
+           (no CSS animation on the splash itself, so it can never
+           restart on mobile viewport changes)
         ========================================================= */
         (function buildSparkles() {
 
             const container = document.getElementById('splashSparkles');
             if (!container) return;
 
-            const count = 12;
+            const isSmall = window.matchMedia('(max-width: 760px)').matches;
+            const count = isSmall ? 0 : 12;      // skip sparkles on mobile (perf)
             const radius = 118;
 
             for (let i = 0; i < count; i++) {
@@ -2204,10 +2283,24 @@
         })();
 
 
-        /* Lock scroll while splash is showing */
-        document.documentElement.style.overflow = 'hidden';
-        document.body.classList.add('no-scroll');
+        function hideSplash() {
+            const splash = document.getElementById('splash');
+            if (!splash) return;
 
+            splash.classList.add('is-hiding');
+
+            setTimeout(function () {
+                if (splash.parentNode) {
+                    splash.classList.add('is-gone');
+                    splash.parentNode.removeChild(splash);
+                }
+            }, 1000);
+        }
+
+
+        /* =========================================================
+           INIT
+        ========================================================= */
         window.addEventListener('load', function () {
 
             /* Wipe old subject data */
@@ -2230,15 +2323,17 @@
             document.getElementById('attended').value = '';
             document.getElementById('quickResult').style.display = 'none';
 
-            /* Clean up splash */
+            /* Hide splash after a short pause */
+            const isSmall = window.matchMedia('(max-width: 760px)').matches;
+            const splashDelay = isSmall ? 1600 : 2500;   // shorter on mobile
+
+            setTimeout(hideSplash, splashDelay);
+
+            /* Safety net: if anything above fails, force-hide splash at 5s */
             setTimeout(function () {
-                const splash = document.getElementById('splash');
-                if (splash && splash.parentNode) {
-                    splash.parentNode.removeChild(splash);
-                }
-                document.documentElement.style.overflow = '';
-                document.body.classList.remove('no-scroll');
-            }, 3500);
+                const s = document.getElementById('splash');
+                if (s && s.parentNode) s.parentNode.removeChild(s);
+            }, 5000);
         });
 
     </script>
